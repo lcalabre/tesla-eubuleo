@@ -3,55 +3,118 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>tesla.eubuleo.it</title>
+<title>Tachimetro</title>
+<meta name="description" content="Il telefono diventa un tachimetro da 0 a 200 km/h e un display da parabrezza. Nessuna app da installare, nessun account, funziona su qualsiasi auto.">
+<meta name="theme-color" content="#06080A">
+<link rel="canonical" href="https://lcalabre.github.io/tesla-eubuleo/">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icona-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icona-192.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tachimetro">
+<meta property="og:description" content="Il telefono diventa un tachimetro e un display da parabrezza. Nessuna app, nessun account.">
+<meta property="og:image" content="https://lcalabre.github.io/tesla-eubuleo/anteprima.png">
+<meta property="og:url" content="https://lcalabre.github.io/tesla-eubuleo/">
+<meta property="og:locale" content="it_IT">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tachimetro">
+<meta name="twitter:description" content="Il telefono diventa un tachimetro e un display da parabrezza.">
+<meta name="twitter:image" content="https://lcalabre.github.io/tesla-eubuleo/anteprima.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600&family=Manrope:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&family=Manrope:wght@400;600&display=swap">
 <style>
   :root{
     --nero:#06080A; --carta:#0E1216; --filo:#1C242B;
-    --chiaro:#F2F6F8; --tenue:#788894; --blu:#4FA3DA;
+    --chiaro:#F2F6F8; --tenue:#8B99A5; --ambra:#FFB01F; --blu:#4FA3DA;
     color-scheme: dark;
   }
   *{box-sizing:border-box;}
   body{
     margin:0; background:var(--nero); color:var(--chiaro);
-    font-family:Manrope, system-ui, sans-serif; line-height:1.6;
-    padding:40px 16px calc(40px + env(safe-area-inset-bottom, 0px));
+    font-family:Manrope, system-ui, sans-serif; line-height:1.6; font-size:17px;
+    padding:0 16px calc(48px + env(safe-area-inset-bottom, 0px));
   }
-  main{max-width:640px; margin:0 auto;}
-  .occhiello{font-family:Jost,sans-serif; text-transform:uppercase; letter-spacing:.2em;
-             font-size:12px; color:var(--tenue);}
-  h1{font-family:Jost,sans-serif; font-weight:600; font-size:clamp(30px,7vw,44px);
-     margin:6px 0 10px; letter-spacing:-.02em;}
-  p{color:var(--tenue); margin:0 0 28px;}
-  a.scheda{
-    display:block; text-decoration:none; color:inherit; background:var(--carta);
-    border:1px solid var(--filo); border-radius:18px; padding:20px 22px; margin-bottom:14px;
+  main{max-width:660px; margin:0 auto;}
+  h1,h2{font-family:Jost, sans-serif; letter-spacing:-.02em; text-wrap:balance;}
+  h1{font-weight:700; font-size:clamp(38px,10vw,62px); line-height:1.02; margin:0 0 14px;}
+  h2{font-weight:600; font-size:21px; margin:40px 0 12px;}
+  .occhiello{font-family:Jost,sans-serif; text-transform:uppercase; letter-spacing:.22em;
+             font-size:12px; color:var(--tenue); margin-top:48px;}
+  p{margin:0 0 16px; color:#C7D2DA;}
+  p.tenue{color:var(--tenue); font-size:15px;}
+
+  .prova{
+    display:inline-flex; align-items:center; gap:10px; margin:12px 0 8px;
+    background:var(--ambra); color:#141005; text-decoration:none; font-weight:600;
+    font-family:Jost,sans-serif; font-size:19px; padding:15px 28px; border-radius:15px;
   }
-  a.scheda:hover, a.scheda:focus-visible{border-color:var(--blu); outline:none;}
-  a.scheda h2{font-family:Jost,sans-serif; font-weight:600; font-size:20px; margin:0 0 6px;}
-  a.scheda span{color:var(--tenue); font-size:14.5px;}
-  footer{color:var(--tenue); font-size:13px; margin-top:34px; border-top:1px solid var(--filo);
-         padding-top:16px;}
-  code{font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.92em;}
+  .prova:hover, .prova:focus-visible{background:#FFC24F; outline:none;}
+  .sotto-bottone{font-size:14px; color:var(--tenue); margin-bottom:34px;}
+
+  figure{margin:26px 0 0;}
+  figure img{width:100%; border-radius:18px; border:1px solid var(--filo); display:block;}
+
+  ul{margin:0 0 16px; padding-left:20px; color:#C7D2DA;}
+  li{margin-bottom:9px;}
+  li b{color:var(--chiaro);}
+
+  .lingua{background:var(--carta); border:1px solid var(--filo); border-radius:16px;
+          padding:20px 22px; margin-top:44px;}
+  .lingua h2{margin-top:0;}
+  footer{margin-top:48px; border-top:1px solid var(--filo); padding-top:18px;
+         color:var(--tenue); font-size:14px;}
+  footer a{color:var(--tenue);}
 </style>
 </head>
 <body>
 <main>
-  <div class="occhiello">Model 3</div>
-  <h1>Strumenti di bordo</h1>
-  <p>Pagine private, servite da un dominio mio. Nessun dato lascia il telefono.</p>
+  <div class="occhiello">Strumento da abitacolo</div>
+  <h1>Il telefono diventa un tachimetro.</h1>
+  <p>Un quadrante da 0 a 200 km/h che legge il GPS, e una modalit&agrave; <b>specchiata</b> per
+  appoggiare il telefono sul cruscotto e leggere la velocit&agrave; riflessa sul parabrezza,
+  senza staccare gli occhi dalla strada.</p>
 
-  <a class="scheda" href="tachimetro.html">
-    <h2>Tachimetro</h2>
-    <span>Quadrante 0-200 km/h dal GPS del telefono, con la modalit&agrave; specchiata
-    per leggerlo riflesso sul parabrezza.</span>
-  </a>
+  <a class="prova" href="tachimetro.html">Aprilo adesso</a>
+  <div class="sotto-bottone">Niente da installare, niente account, niente pubblicit&agrave;.</div>
+
+  <figure><img src="anteprima.png" alt="Il quadrante del tachimetro, da 0 a 200 km/h"></figure>
+
+  <h2>Cosa fa</h2>
+  <ul>
+    <li><b>Velocit&agrave; dal GPS</b>, quindi funziona su qualsiasi auto, anche a noleggio,
+    anche in moto o in bicicletta.</li>
+    <li><b>Modalit&agrave; specchiata</b>: il testo ribaltato si legge dritto nel riflesso del
+    parabrezza. &Egrave; un display a testa alta senza comprare niente.</li>
+    <li><b>Chilometri, media e massima</b> del viaggio in corso, azzerabili con un tocco.</li>
+    <li><b>Lo schermo resta acceso</b> finch&eacute; &egrave; in funzione.</li>
+    <li><b>Funziona senza rete</b>: una volta aperto, resta disponibile anche in galleria e dove
+    non prende.</li>
+  </ul>
+
+  <h2>Come tenerlo a portata</h2>
+  <p>Dal menu del browser scegli <b>Aggiungi a schermata Home</b>: si apre a tutto schermo,
+  in orizzontale, con la sua icona, come un&rsquo;app qualsiasi.</p>
+
+  <h2>Cosa non fa</h2>
+  <p class="tenue">Non raccoglie niente e non manda niente a nessuno: la posizione resta nel
+  telefono e serve solo a calcolare la velocit&agrave;. Non c&rsquo;&egrave; un server dietro,
+  non ci sono cookie e non c&rsquo;&egrave; niente da accettare.</p>
+  <p class="tenue">Il GPS &egrave; preciso ma non &egrave; strumento omologato: per le multe fa
+  fede il tachimetro dell&rsquo;auto, che per legge non pu&ograve; segnare meno del vero.
+  E il telefono va in un supporto, non in mano.</p>
+
+  <div class="lingua">
+    <h2>In English</h2>
+    <p>Your phone becomes a <b>speedometer</b>, 0 to 200 km/h, read from GPS. Turn on
+    <b>mirror mode</b>, rest the phone on the dashboard, and read your speed reflected in the
+    windscreen: a head-up display for free. No app, no account, no tracking, works offline and
+    in any car. <a href="tachimetro.html">Open it</a>.</p>
+  </div>
 
   <footer>
-    Questo dominio serve anche la chiave pubblica dell&rsquo;applicazione Tesla, in
-    <code>/.well-known/appspecific/</code>.
+    Fatto da <a href="https://github.com/lcalabre">lcalabre</a>. Codice aperto su
+    <a href="https://github.com/lcalabre/tesla-eubuleo">GitHub</a>.
   </footer>
 </main>
 </body>

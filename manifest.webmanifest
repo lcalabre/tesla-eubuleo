@@ -1,0 +1,16 @@
+{
+  "name": "Tachimetro GPS",
+  "short_name": "Tachimetro",
+  "description": "Il telefono diventa un tachimetro da 0 a 200 km/h, con la modalita specchiata per leggerlo riflesso sul parabrezza.",
+  "start_url": "tachimetro.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#06080A",
+  "theme_color": "#06080A",
+  "lang": "it",
+  "icons": [
+    {"src": "icona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}

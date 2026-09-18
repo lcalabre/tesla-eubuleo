@@ -1,3 +1,27 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="description" content="Il telefono diventa un tachimetro da 0 a 200 km/h, con la modalita specchiata per leggerlo riflesso sul parabrezza. Nessuna app, nessun account, funziona su qualsiasi auto.">
+<meta name="theme-color" content="#06080A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="canonical" href="https://lcalabre.github.io/tesla-eubuleo/tachimetro.html">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icona-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icona-192.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tachimetro GPS">
+<meta property="og:description" content="Il telefono diventa un tachimetro da 0 a 200 km/h, con la modalita specchiata per leggerlo riflesso sul parabrezza. Nessuna app, nessun account, funziona su qualsiasi auto.">
+<meta property="og:image" content="https://lcalabre.github.io/tesla-eubuleo/anteprima.png">
+<meta property="og:url" content="https://lcalabre.github.io/tesla-eubuleo/tachimetro.html">
+<meta property="og:locale" content="it_IT">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tachimetro GPS">
+<meta name="twitter:description" content="Il telefono diventa un tachimetro da 0 a 200 km/h, con la modalita specchiata per leggerlo riflesso sul parabrezza. Nessuna app, nessun account, funziona su qualsiasi auto.">
+<meta name="twitter:image" content="https://lcalabre.github.io/tesla-eubuleo/anteprima.png">
 <title>Tachimetro GPS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,6 +96,8 @@
   }
 </style>
 
+</head>
+<body>
 <div class="schermo" id="schermo">
   <div class="testa riflesso">
     <span class="stato"><i class="spia" id="spia"></i><span id="etichetta-gps">GPS spento</span></span>
@@ -298,3 +324,11 @@ if (window.self !== window.top) {
     "rifiutato senza nemmeno chiedertelo, il motivo &egrave; questo. Aprila sul tuo dominio.";
 }
 </script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>
