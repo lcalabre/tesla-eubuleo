@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>tesla.eubuleo.it</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600&family=Manrope:wght@400;600&display=swap">
+<style>
+  :root{
+    --nero:#06080A; --carta:#0E1216; --filo:#1C242B;
+    --chiaro:#F2F6F8; --tenue:#788894; --blu:#4FA3DA;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--nero); color:var(--chiaro);
+    font-family:Manrope, system-ui, sans-serif; line-height:1.6;
+    padding:40px 16px calc(40px + env(safe-area-inset-bottom, 0px));
+  }
+  main{max-width:640px; margin:0 auto;}
+  .occhiello{font-family:Jost,sans-serif; text-transform:uppercase; letter-spacing:.2em;
+             font-size:12px; color:var(--tenue);}
+  h1{font-family:Jost,sans-serif; font-weight:600; font-size:clamp(30px,7vw,44px);
+     margin:6px 0 10px; letter-spacing:-.02em;}
+  p{color:var(--tenue); margin:0 0 28px;}
+  a.scheda{
+    display:block; text-decoration:none; color:inherit; background:var(--carta);
+    border:1px solid var(--filo); border-radius:18px; padding:20px 22px; margin-bottom:14px;
+  }
+  a.scheda:hover, a.scheda:focus-visible{border-color:var(--blu); outline:none;}
+  a.scheda h2{font-family:Jost,sans-serif; font-weight:600; font-size:20px; margin:0 0 6px;}
+  a.scheda span{color:var(--tenue); font-size:14.5px;}
+  footer{color:var(--tenue); font-size:13px; margin-top:34px; border-top:1px solid var(--filo);
+         padding-top:16px;}
+  code{font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.92em;}
+</style>
+</head>
+<body>
+<main>
+  <div class="occhiello">Model 3</div>
+  <h1>Strumenti di bordo</h1>
+  <p>Pagine private, servite da un dominio mio. Nessun dato lascia il telefono.</p>
+
+  <a class="scheda" href="tachimetro.html">
+    <h2>Tachimetro</h2>
+    <span>Quadrante 0-200 km/h dal GPS del telefono, con la modalit&agrave; specchiata
+    per leggerlo riflesso sul parabrezza.</span>
+  </a>
+
+  <footer>
+    Questo dominio serve anche la chiave pubblica dell&rsquo;applicazione Tesla, in
+    <code>/.well-known/appspecific/</code>.
+  </footer>
+</main>
+</body>
+</html>

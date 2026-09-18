@@ -1,0 +1,300 @@
+<title>Tachimetro GPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700&family=Manrope:wght@500;600&display=swap">
+<style>
+  /* Strumento da abitacolo: un solo tema, scuro, perche' si usa dietro un parabrezza. */
+  :root{
+    --nero:#06080A; --quadrante:#0E1216; --filo:#1C242B;
+    --chiaro:#F2F6F8; --tenue:#788894; --ambra:#FFB01F; --blu:#4FA3DA; --rosso:#FF5A6E;
+    color-scheme: dark;
+  }
+  html, body{height:100%;}
+  body{
+    margin:0; background:var(--nero); color:var(--chiaro);
+    font-family:Manrope, system-ui, sans-serif;
+    -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent;
+    overflow:hidden;
+  }
+  .schermo{
+    height:100%; box-sizing:border-box; display:flex; gap:14px;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+    flex-direction:column;
+  }
+  .specchio .riflesso{transform:scaleX(-1);}
+
+  .testa{display:flex; justify-content:space-between; align-items:center; gap:10px;
+         font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--tenue);
+         flex:none;}
+  .stato{display:inline-flex; align-items:center; gap:7px;}
+  .spia{width:9px; height:9px; border-radius:50%; background:var(--tenue); flex:none;}
+  .spia.viva{background:var(--blu); box-shadow:0 0 10px var(--blu);}
+  .spia.scarsa{background:var(--ambra); box-shadow:0 0 10px var(--ambra);}
+
+  .corpo{flex:1; display:flex; gap:14px; min-height:0; align-items:stretch;}
+  .quadrante{flex:1; min-height:0; display:flex; align-items:center; justify-content:center;}
+  .quadrante svg{width:100%; height:100%; max-height:100%;}
+
+  .fianco{flex:none; width:180px; display:flex; flex-direction:column; gap:8px; justify-content:center;}
+  .cella{background:var(--quadrante); border:1px solid var(--filo); border-radius:14px;
+         padding:9px 12px; display:flex; align-items:baseline; justify-content:space-between; gap:8px;}
+  .cella .v{font-family:Jost,sans-serif; font-weight:500; font-size:22px;
+            font-variant-numeric:tabular-nums; line-height:1.1;}
+  .cella .e{font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--tenue);}
+  .comandi{display:flex; gap:8px;}
+  button{
+    flex:1; font-family:Manrope,sans-serif; font-size:13px; font-weight:600; color:var(--chiaro);
+    background:var(--quadrante); border:1px solid var(--filo); border-radius:13px;
+    padding:12px 6px; cursor:pointer; min-height:46px;
+  }
+  button:active{background:#18202a;}
+  button.acceso{border-color:var(--ambra); color:var(--ambra);}
+  button:focus-visible{outline:2px solid var(--blu); outline-offset:2px;}
+
+  .messaggio{
+    flex:none; font-size:12.5px; line-height:1.45; color:var(--ambra); text-align:center;
+    background:rgba(255,176,31,.08); border:1px solid rgba(255,176,31,.3);
+    border-radius:12px; padding:9px 12px;
+  }
+  .messaggio b{color:var(--chiaro);}
+  .messaggio a{color:var(--ambra);}
+  .messaggio:empty{display:none;}
+
+  /* In verticale il quadrante sta sopra e i numeri sotto: in orizzontale affiancati. */
+  @media (orientation: portrait){
+    .corpo{flex-direction:column;}
+    .fianco{width:auto;}
+    .cella{justify-content:center; gap:10px;}
+  }
+  @media (orientation: landscape) and (max-height:520px){
+    .testa{font-size:10px;}
+    .fianco{width:min(34vw, 230px);}
+  }
+</style>
+
+<div class="schermo" id="schermo">
+  <div class="testa riflesso">
+    <span class="stato"><i class="spia" id="spia"></i><span id="etichetta-gps">GPS spento</span></span>
+    <span id="schermo-acceso"></span>
+  </div>
+
+  <div class="corpo">
+    <div class="quadrante riflesso">
+      <svg id="strumento" viewBox="36 40 348 268" role="img"
+           aria-label="Quadrante della velocita da 0 a 200 chilometri orari"></svg>
+    </div>
+    <div class="fianco riflesso">
+      <div class="cella"><span class="v" id="distanza">0,0</span><span class="e">km</span></div>
+      <div class="cella"><span class="v" id="media">0</span><span class="e">media</span></div>
+      <div class="cella"><span class="v" id="massima">0</span><span class="e">massima</span></div>
+      <div class="comandi">
+        <button id="avvia">Avvia</button>
+        <button id="specchia">Specchia</button>
+        <button id="azzera">Azzera</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="messaggio riflesso" id="messaggio">
+    Tocca <b>Avvia</b> e concedi la posizione. La velocit&agrave; arriva dal GPS del telefono,
+    non dall&rsquo;auto.
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const nf = (n, d = 0) => n.toLocaleString("it-IT", {minimumFractionDigits: d, maximumFractionDigits: d});
+
+const FONDO = 200;            // fondoscala: la Model 3 arriva a circa 201 km/h
+const LIMITE = 130;           // limite autostradale, segnato sul quadrante
+const A0 = -216, A1 = 36;     // angoli di inizio e fine dell'arco, in gradi
+
+let osservatore = null, blocco = null, precedente = null;
+let metri = 0, secondiInMoto = 0, massima = 0, attivo = false;
+
+/* ---------- quadrante ---------- */
+const CX = 210, CY = 208, R = 150;
+const ang = v => A0 + (A1 - A0) * Math.min(1, Math.max(0, v / FONDO));
+const punto = (a, r) => [CX + r * Math.cos(a * Math.PI / 180), CY + r * Math.sin(a * Math.PI / 180)];
+
+function arco(da, a, raggio) {
+  const [x1, y1] = punto(ang(da), raggio), [x2, y2] = punto(ang(a), raggio);
+  const largo = Math.abs(ang(a) - ang(da)) > 180 ? 1 : 0;
+  return "M" + x1 + " " + y1 + " A" + raggio + " " + raggio + " 0 " + largo + " 1 " + x2 + " " + y2;
+}
+
+function disegnaQuadrante() {
+  let s = '<path d="' + arco(0, FONDO, R) + '" fill="none" stroke="var(--filo)" stroke-width="16" stroke-linecap="round"/>';
+  s += '<path id="arco-vivo" d="" fill="none" stroke="var(--blu)" stroke-width="16" stroke-linecap="round"/>';
+  for (let v = 0; v <= FONDO; v += 10) {
+    const grande = v % 20 === 0;
+    const a = ang(v);
+    const [x1, y1] = punto(a, R - 13), [x2, y2] = punto(a, R - (grande ? 27 : 21));
+    s += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 +
+         '" stroke="' + (v >= LIMITE ? "var(--ambra)" : "var(--tenue)") +
+         '" stroke-width="' + (grande ? 2.6 : 1.4) + '" stroke-opacity="' + (grande ? .95 : .5) + '"/>';
+    if (grande) {
+      const [tx, ty] = punto(a, R - 44);
+      s += '<text x="' + tx + '" y="' + (ty + 5) + '" text-anchor="middle" font-size="16" ' +
+           'font-family="Jost, sans-serif" fill="var(--tenue)">' + v + "</text>";
+    }
+  }
+  const [lx, ly] = punto(ang(LIMITE), R + 18);
+  s += '<text x="' + lx + '" y="' + ly + '" text-anchor="middle" font-size="12" ' +
+       'font-family="Manrope, sans-serif" fill="var(--ambra)" fill-opacity=".85">130</text>';
+  s += '<text id="cifra" x="' + CX + '" y="' + (CY - 4) + '" text-anchor="middle" font-size="72" ' +
+       'font-family="Jost, sans-serif" font-weight="700" fill="var(--tenue)" ' +
+       'style="font-variant-numeric:tabular-nums">--</text>';
+  s += '<text x="' + CX + '" y="' + (CY + 24) + '" text-anchor="middle" font-size="14" ' +
+       'font-family="Jost, sans-serif" fill="var(--tenue)" letter-spacing="4">KM/H</text>';
+  s += '<g id="lancetta" transform="rotate(' + ang(0) + " " + CX + " " + CY + ')">' +
+       '<polygon points="' + (CX - 6) + "," + CY + " " + (CX + R - 26) + "," + (CY - 3.2) + " " +
+       (CX + R - 26) + "," + (CY + 3.2) + '" fill="var(--ambra)"/></g>';
+  s += '<circle cx="' + CX + '" cy="' + CY + '" r="9" fill="var(--nero)" stroke="var(--ambra)" stroke-width="2.5"/>';
+  $("strumento").innerHTML = s;
+}
+disegnaQuadrante();
+
+let mostrata = 0;
+function muoviA(kmh, agganciato) {
+  const v = Math.min(FONDO, Math.max(0, kmh));
+  mostrata += (v - mostrata) * 0.35;                 // la lancetta non salta, si avvicina
+  const l = $("lancetta"), c = $("cifra"), a = $("arco-vivo");
+  if (l) l.setAttribute("transform", "rotate(" + ang(mostrata) + " " + CX + " " + CY + ")");
+  if (a) a.setAttribute("d", mostrata > 1 ? arco(0, mostrata, R) : "");
+  if (c) {
+    c.textContent = agganciato ? nf(v) : "--";
+    c.setAttribute("fill", !agganciato || v < 1 ? "var(--tenue)"
+      : (v >= LIMITE ? "var(--ambra)" : "var(--chiaro)"));
+  }
+}
+setInterval(() => muoviA(obiettivo, agganciatoOra), 60);
+let obiettivo = 0, agganciatoOra = false;
+
+/* ---------- posizione ---------- */
+const RT = 6371000;
+function distanza(a, b) {
+  const f1 = a.lat * Math.PI / 180, f2 = b.lat * Math.PI / 180;
+  const df = (b.lat - a.lat) * Math.PI / 180, dl = (b.lon - a.lon) * Math.PI / 180;
+  const h = Math.sin(df / 2) ** 2 + Math.cos(f1) * Math.cos(f2) * Math.sin(dl / 2) ** 2;
+  return 2 * RT * Math.asin(Math.sqrt(h));
+}
+
+function aggiorna(pos) {
+  const c = pos.coords, ora = pos.timestamp / 1000;
+  const p = {lat: c.latitude, lon: c.longitude, t: ora};
+  // coords.speed viene dal doppler ed e' il dato buono; se manca, si ricava da due fix
+  let kmh = (c.speed !== null && c.speed !== undefined && !Number.isNaN(c.speed)) ? c.speed * 3.6 : null;
+  if (precedente) {
+    const dt = ora - precedente.t, passo = distanza(precedente, p);
+    if (kmh === null && dt > 0.4 && dt < 30) kmh = passo / dt * 3.6;
+    // sotto i 2 km/h il GPS "cammina" da fermo: quei metri non sono strada
+    if (dt > 0 && dt < 30 && kmh !== null && kmh >= 2 && c.accuracy <= 30) {
+      metri += passo;
+      secondiInMoto += dt;
+    }
+  }
+  precedente = p;
+  if (kmh === null) kmh = 0;
+  if (kmh > massima) massima = kmh;
+  obiettivo = kmh;
+  agganciatoOra = true;
+
+  $("distanza").textContent = nf(metri / 1000, 1);
+  $("media").textContent = nf(secondiInMoto > 5 ? metri / secondiInMoto * 3.6 : 0);
+  $("massima").textContent = nf(massima);
+  const buono = c.accuracy <= 20;
+  $("spia").className = "spia " + (buono ? "viva" : "scarsa");
+  $("etichetta-gps").textContent = "GPS " + (buono ? "agganciato" : "debole") + " - " + nf(c.accuracy) + " m";
+  if (buono) $("messaggio").innerHTML = "";
+}
+
+function errore(e) {
+  // Solo il permesso negato e' definitivo: "posizione non disponibile" e timeout capitano
+  // in galleria e nei box, e li' si aspetta invece di spegnere tutto.
+  if (e.code === 1) { spiegaIlRifiuto(); fermaTutto(); return; }
+  $("spia").className = "spia scarsa";
+  $("etichetta-gps").textContent = "segnale perso";
+  $("messaggio").innerHTML = "Segnale perso, continuo a cercarlo. Succede in galleria e nei garage.";
+}
+
+/* Il permesso puo' mancare per due motivi diversi, e il rimedio e' diverso: o l'hai negato
+   tu al sito, oppure la pagina sta girando dentro una cornice che non lo lascia passare. */
+async function spiegaIlRifiuto() {
+  let stato = "?";
+  try { stato = (await navigator.permissions.query({name: "geolocation"})).state; } catch (e) {}
+  const incorniciata = window.self !== window.top;
+  const m = $("messaggio");
+  if (stato === "denied") {
+    m.innerHTML = "<b>Permesso negato nelle impostazioni del sito.</b> Su Chrome: i tre puntini, " +
+      "Impostazioni, Impostazioni sito, Posizione, cerca questo sito e metti Consenti. " +
+      "Poi ricarica la pagina.";
+  } else if (incorniciata) {
+    m.innerHTML = "<b>La pagina gira dentro una cornice che blocca il GPS</b> (stato del permesso: " +
+      stato + "). Non dipende dalle tue impostazioni: va aperta come pagina sua, " +
+      "sul dominio tuo. Vedi GUIDA.md, passo 0.";
+  } else {
+    m.innerHTML = "Permesso non concesso (stato: " + stato + "). Riprova e scegli Consenti, " +
+      "oppure controlla che la posizione del telefono sia accesa.";
+  }
+}
+
+async function tieniAccesoLoSchermo() {
+  try {
+    blocco = await navigator.wakeLock.request("screen");
+    $("schermo-acceso").textContent = "schermo bloccato";
+    blocco.addEventListener("release", () => $("schermo-acceso").textContent = "");
+  } catch (e) { $("schermo-acceso").textContent = ""; }
+}
+
+function fermaTutto() {
+  if (osservatore !== null) navigator.geolocation.clearWatch(osservatore);
+  osservatore = null; attivo = false; precedente = null;
+  obiettivo = 0; agganciatoOra = false;
+  if (blocco) { blocco.release().catch(() => {}); blocco = null; }
+  $("avvia").textContent = "Avvia";
+  $("avvia").classList.remove("acceso");
+  $("spia").className = "spia";
+  $("etichetta-gps").textContent = "GPS spento";
+}
+
+$("avvia").addEventListener("click", () => {
+  if (attivo) { fermaTutto(); return; }
+  if (!navigator.geolocation) { $("messaggio").textContent = "Questo browser non espone la posizione."; return; }
+  attivo = true;
+  $("avvia").textContent = "Ferma";
+  $("avvia").classList.add("acceso");
+  $("messaggio").innerHTML = "In attesa del primo aggancio…";
+  osservatore = navigator.geolocation.watchPosition(aggiorna, errore,
+    {enableHighAccuracy: true, maximumAge: 0, timeout: 20000});
+  if ("wakeLock" in navigator) tieniAccesoLoSchermo();
+});
+
+$("specchia").addEventListener("click", () => {
+  const acceso = $("schermo").classList.toggle("specchio");
+  $("specchia").classList.toggle("acceso", acceso);
+  try { localStorage.setItem("specchio", acceso ? "1" : "0"); } catch (e) {}
+});
+
+$("azzera").addEventListener("click", () => {
+  metri = 0; secondiInMoto = 0; massima = 0; precedente = null;
+  $("distanza").textContent = "0,0"; $("media").textContent = "0"; $("massima").textContent = "0";
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && attivo && "wakeLock" in navigator) tieniAccesoLoSchermo();
+});
+
+try {
+  if (localStorage.getItem("specchio") === "1") {
+    $("schermo").classList.add("specchio");
+    $("specchia").classList.add("acceso");
+  }
+} catch (e) {}
+
+// se siamo in una cornice, il problema si conosce prima di premere Avvia
+if (window.self !== window.top) {
+  $("messaggio").innerHTML = "Questa pagina sta girando <b>dentro una cornice</b>: se il GPS viene " +
+    "rifiutato senza nemmeno chiedertelo, il motivo &egrave; questo. Aprila sul tuo dominio.";
+}
+</script>
