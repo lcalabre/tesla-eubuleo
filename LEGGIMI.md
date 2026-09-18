@@ -10,7 +10,7 @@ perché il GPS dentro un iframe viene rifiutato.
 | File | A cosa serve |
 |---|---|
 | `.nojekyll` | **vuoto ma indispensabile**: senza, GitHub Pages passa tutto da Jekyll, che ignora le cartelle che iniziano con un punto, e `.well-known` non viene pubblicata |
-| `CNAME` | contiene `tesla.eubuleo.it`, dice a Pages qual è il dominio |
+| `CNAME.da-attivare` | contiene `tesla.eubuleo.it`. **Va rinominato in `CNAME` solo dopo** aver creato il record DNS: con quel file presente, Pages rimanda l'indirizzo github.io al dominio, e finché il dominio non risolve il sito risulta irraggiungibile |
 | `index.html` | l'elenco degli strumenti |
 | `tachimetro.html` | il tachimetro GPS |
 | `.well-known/appspecific/` | **qui dentro va `com.tesla.3p.public-key.pem`**, generata al passo 2 della guida |
