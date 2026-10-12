@@ -45,8 +45,7 @@
   }
   .aura{position:fixed; inset:0; pointer-events:none; z-index:0;
     background:
-      radial-gradient(55% 80% at 33% 55%, var(--alone), transparent 72%),
-      radial-gradient(70% 60% at 85% 110%, var(--velo), transparent 70%),
+      radial-gradient(34% 52% at 33% 52%, var(--alone), transparent 70%),
       linear-gradient(var(--velo), var(--velo));
     transition:opacity .6s ease;}
   .aura::after{content:""; position:absolute; inset:0;
@@ -109,6 +108,8 @@
     .corpo{flex-direction:column;}
     .fianco{width:auto;}
     .cella{justify-content:center; gap:10px;}
+    .aura{background:radial-gradient(60% 26% at 50% 34%, var(--alone), transparent 70%),
+                     linear-gradient(var(--velo), var(--velo));}
   }
   @media (orientation: landscape) and (max-height:520px){
     .testa{font-size:10px;}
@@ -246,8 +247,8 @@ function tingi(v, acceso) {
   ultimaTinta = chiave;
   const st = document.documentElement.style;
   st.setProperty("--tinta", "rgb(" + c + ")");
-  st.setProperty("--alone", acceso ? "rgba(" + c + ",.42)" : "rgba(0,0,0,0)");
-  st.setProperty("--velo", acceso ? "rgba(" + c + ",.12)" : "rgba(0,0,0,0)");
+  st.setProperty("--alone", acceso ? "rgba(" + c + ",.2)" : "rgba(0,0,0,0)");
+  st.setProperty("--velo", acceso ? "rgba(" + c + ",.04)" : "rgba(0,0,0,0)");
 }
 
 function muoviA(kmh, agganciato) {
