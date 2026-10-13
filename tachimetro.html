@@ -292,19 +292,30 @@ function distanza(a, b) {
 }
 
 function aggiorna(pos) {
-  const c = pos.coords, ora = pos.timestamp / 1000;
+  // L'ora e' quella del dispositivo all'arrivo del fix: sul browser della Tesla pos.timestamp non e'
+  // affidabile, e con quello km e media restavano a zero mentre la velocita' funzionava.
+  const c = pos.coords, ora = Date.now() / 1000;
   const p = {lat: c.latitude, lon: c.longitude, t: ora};
   // coords.speed viene dal doppler ed e' il dato buono; se manca, si ricava da due fix
-  let kmh = (c.speed !== null && c.speed !== undefined && !Number.isNaN(c.speed)) ? c.speed * 3.6 : null;
+  const doppler = c.speed !== null && c.speed !== undefined && !Number.isNaN(c.speed);
+  let kmh = doppler ? c.speed * 3.6 : null;
   if (precedente) {
     const dt = ora - precedente.t, passo = distanza(precedente, p);
     if (kmh === null && dt > 0.4 && dt < 30) kmh = passo / dt * 3.6;
-    // sotto i 2 km/h il GPS "cammina" da fermo: quei metri non sono strada
-    if (dt > 0 && dt < 30 && kmh !== null && kmh >= 2 && c.accuracy <= 30) {
-      metri += passo;
-      secondiInMoto += dt;
+    // La strada si conta integrando la velocita' nel tempo (media fra due fix): non dipende da
+    // coordinate che possono arrivare ripetute o imprecise. Senza doppler si usano le coordinate.
+    // Sotto i 2 km/h il GPS "cammina" da fermo: quei metri non sono strada.
+    if (dt > 0 && dt < 30 && kmh !== null && kmh >= 2) {
+      if (doppler && precedente.kmh !== null) {
+        metri += (kmh + precedente.kmh) / 2 / 3.6 * dt;
+        secondiInMoto += dt;
+      } else if (c.accuracy <= 30) {
+        metri += passo;
+        secondiInMoto += dt;
+      }
     }
   }
+  p.kmh = kmh;
   precedente = p;
   if (kmh === null) kmh = 0;
   if (kmh > massima) massima = kmh;
